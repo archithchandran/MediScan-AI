@@ -255,20 +255,36 @@ def book():
 @app.route('/doctor_register', methods=['GET','POST'])
 def doctor_register():
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
-        specialization = request.form['specialization']
-        license = request.form['license']
+        try:
+            name = request.form['name']
+            email = request.form['email']
+            password = request.form['password']
+            specialization = request.form['specialization']
+            license = request.form['license']
 
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute("INSERT INTO doctors (name,email,password,specialization,license) VALUES (?,?,?,?,?)",
-                  (name,email,password,specialization,license))
-        conn.commit()
-        conn.close()
+            conn = sqlite3.connect('database.db')
+            c = conn.cursor()
 
-        return redirect('/doctor_login')
+            c.execute("""
+            CREATE TABLE IF NOT EXISTS doctors(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                email TEXT,
+                password TEXT,
+                specialization TEXT,
+                license TEXT
+            )
+            """)
+
+            c.execute("INSERT INTO doctors (name,email,password,specialization,license) VALUES (?,?,?,?,?)",
+                      (name,email,password,specialization,license))
+            conn.commit()
+            conn.close()
+
+            return redirect('/doctor_login')
+
+        except Exception as e:
+            return str(e)
 
     return render_template('doctor_register.html')
 
