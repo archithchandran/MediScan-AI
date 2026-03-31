@@ -15,28 +15,14 @@ def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS users(
+    c.execute('''CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         email TEXT,
         password TEXT
-    )
-    """)
+    )''')
 
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS doctors(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT,
-        password TEXT,
-        specialization TEXT,
-        license TEXT
-    )
-    """)
-
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS records(
+    c.execute('''CREATE TABLE IF NOT EXISTS records(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         bp REAL,
@@ -48,17 +34,14 @@ def init_db():
         doctor TEXT,
         category TEXT,
         date TEXT
-    )
-    """)
+    )''')
 
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS appointments(
+    c.execute('''CREATE TABLE IF NOT EXISTS appointments(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         doctor TEXT,
         date TEXT
-    )
-    """)
+    )''')
 
     conn.commit()
     conn.close()
@@ -74,7 +57,7 @@ def hash_password(password):
 def home():
     return render_template('index.html')
 
-# ---------------- USER REGISTER ----------------
+# ---------------- REGISTER ----------------
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'POST':
@@ -92,7 +75,7 @@ def register():
 
     return render_template('register.html')
 
-# ---------------- USER LOGIN ----------------
+# ---------------- LOGIN ----------------
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -112,23 +95,17 @@ def login():
 
     return render_template('login.html')
 
-# ---------------- PROFILE ----------------
-@app.route('/profile')
-def profile():
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT name,email FROM users WHERE id=?", (session['user_id'],))
-    user = c.fetchone()
-    conn.close()
-
-    return render_template('profile.html', user=user)
+# ---------------- LOGOUT ----------------
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')
 
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
 def dashboard():
+    if 'user_id' not in session:
+        return redirect('/login')
     return render_template('dashboard.html')
 
 # ---------------- ANALYZE PAGE ----------------
@@ -147,6 +124,12 @@ def analyze():
 
     risk = predict_risk(bp, sugar, bmi, heart)
 
+    reason = "Normal"
+    if risk == "High":
+        reason = "Health parameters are high"
+    elif risk == "Medium":
+        reason = "Parameters slightly high"
+
     doctor = "General Physician"
     if category == "Heart":
         doctor = "Cardiologist"
@@ -162,18 +145,20 @@ def analyze():
     c.execute("""INSERT INTO records 
               (user_id,bp,sugar,bmi,heart,risk,reason,doctor,category,date)
               VALUES (?,?,?,?,?,?,?,?,?,?)""",
-              (session['user_id'],bp,sugar,bmi,heart,risk,"Health analyzed",doctor,category,date))
+              (session['user_id'],bp,sugar,bmi,heart,risk,reason,doctor,category,date))
     conn.commit()
     conn.close()
 
-    return render_template('result.html', risk=risk, doctor=doctor)
+    return render_template('result.html', risk=risk, reason=reason, doctor=doctor)
 
 # ---------------- HISTORY ----------------
 @app.route('/history')
 def history():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    c.execute("SELECT * FROM records WHERE user_id=?", (session['user_id'],))
+    c.execute("""SELECT bp,sugar,bmi,heart,risk,reason,doctor,category,date 
+                 FROM records WHERE user_id=?""",
+                 (session['user_id'],))
     data = c.fetchall()
     conn.close()
     return render_template('history.html', data=data)
@@ -183,12 +168,13 @@ def history():
 def graph():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    c.execute("SELECT date, bmi FROM records WHERE user_id=?", (session['user_id'],))
+    c.execute("SELECT date, bmi FROM records WHERE user_id=?",
+              (session['user_id'],))
     data = c.fetchall()
     conn.close()
 
     if len(data) == 0:
-        return "No data available"
+        return "No data available for graph"
 
     dates = [row[0] for row in data]
     bmi = [row[1] for row in data]
@@ -198,7 +184,7 @@ def graph():
     plt.xticks(rotation=45)
     plt.xlabel("Date")
     plt.ylabel("BMI")
-    plt.title("Your BMI History")
+    plt.title("BMI History")
     plt.tight_layout()
     plt.savefig("static/graph.png")
     plt.close()
@@ -230,6 +216,8 @@ def download_report():
     pdf.drawString(50, 670, f"Risk Level: {record[4]}")
     pdf.drawString(50, 650, f"Doctor Suggestion: {record[5]}")
     pdf.drawString(50, 630, f"Date: {record[6]}")
+    pdf.drawString(50, 600, "AI Generated Report. Consult a doctor.")
+
     pdf.save()
 
     return redirect("/static/report.pdf")
@@ -251,100 +239,29 @@ def book():
 
     return render_template('book.html')
 
-# ---------------- DOCTOR REGISTER ----------------
-@app.route('/doctor_register', methods=['GET','POST'])
-def doctor_register():
-    if request.method == 'POST':
-        try:
-            name = request.form['name']
-            email = request.form['email']
-            password = request.form['password']
-            specialization = request.form['specialization']
-            license = request.form['license']
+# ---------------- PROFILE ----------------
+@app.route('/profile')
+def profile():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE id=?",
+              (session['user_id'],))
+    user = c.fetchone()
+    conn.close()
+    return render_template('profile.html', user=user)
 
-            conn = sqlite3.connect('database.db')
-            c = conn.cursor()
-
-            c.execute("""
-            CREATE TABLE IF NOT EXISTS doctors(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                email TEXT,
-                password TEXT,
-                specialization TEXT,
-                license TEXT
-            )
-            """)
-
-            c.execute("INSERT INTO doctors (name,email,password,specialization,license) VALUES (?,?,?,?,?)",
-                      (name,email,password,specialization,license))
-            conn.commit()
-            conn.close()
-
-            return redirect('/doctor_login')
-
-        except Exception as e:
-            return str(e)
-
-    return render_template('doctor_register.html')
-
-# ---------------- DOCTOR LOGIN ----------------
-@app.route('/doctor_login', methods=['GET','POST'])
-def doctor_login():
+# ---------------- ADMIN LOGIN ----------------
+@app.route('/admin_login', methods=['GET','POST'])
+def admin_login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        license = request.form['license']
 
-        valid_licenses = ["254678", "873452", "765289"]
-
-        if license not in valid_licenses:
-            return "Invalid License Number"
-
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute("SELECT * FROM doctors WHERE email=? AND password=? AND license=?",
-                  (email,password,license))
-        doctor = c.fetchone()
-        conn.close()
-
-        if doctor:
-            session['doctor_id'] = doctor[0]
-            return redirect('/doctor_dashboard')
-
-    return render_template('doctor_login.html')
-
-# ---------------- DOCTOR DASHBOARD ----------------
-@app.route('/doctor_dashboard')
-def doctor_dashboard():
-    if 'doctor_id' not in session:
-        return redirect('/doctor_login')
-
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-
-    c.execute("SELECT * FROM appointments")
-    appointments = c.fetchall()
-
-    c.execute("SELECT * FROM records")
-    records = c.fetchall()
-
-    conn.close()
-
-    return render_template('doctor_dashboard.html', appointments=appointments, records=records)
-
-# ---------------- ADMIN LOGIN ----------------
-@app.route('/admin_login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-
-        if username == "archithc411@gmail.com" and password == "12345":
+        if email == "archithc411@gmail.com" and password == "12345":
             session['admin'] = True
             return redirect('/admin_panel')
         else:
-            return "Invalid Admin Credentials"
+            return "Invalid Admin Login"
 
     return render_template('admin_login.html')
 
@@ -360,9 +277,6 @@ def admin_panel():
     c.execute("SELECT * FROM users")
     users = c.fetchall()
 
-    c.execute("SELECT * FROM doctors")
-    doctors = c.fetchall()
-
     c.execute("SELECT * FROM records")
     records = c.fetchall()
 
@@ -373,9 +287,14 @@ def admin_panel():
 
     return render_template('admin_panel.html',
                            users=users,
-                           doctors=doctors,
                            records=records,
                            appointments=appointments)
+
+# ---------------- ADMIN LOGOUT ----------------
+@app.route('/admin_logout')
+def admin_logout():
+    session.pop('admin', None)
+    return redirect('/')
 
 # ---------------- AI CHAT ----------------
 @app.route('/chat')
@@ -388,14 +307,20 @@ def get_response():
 
     if "fever" in msg:
         return "Fever may be due to infection. Drink fluids and consult a doctor."
-    elif "bp" in msg:
-        return "Normal blood pressure is around 120/80."
-    elif "diabetes" in msg:
-        return "Control sugar with diet and exercise."
+    elif "blood pressure" in msg or "bp" in msg:
+        return "Normal blood pressure is around 120/80. Reduce salt and exercise."
+    elif "diabetes" in msg or "sugar" in msg:
+        return "Control sugar with diet, exercise and consult a doctor."
+    elif "heart" in msg:
+        return "Heart health requires exercise and a healthy diet."
+    elif "bmi" in msg:
+        return "BMI between 18.5 and 24.9 is normal."
+    elif "hello" in msg or "hi" in msg:
+        return "Hello! I am MediScan AI assistant. How can I help you?"
     else:
-        return "Consult a doctor for accurate medical advice."
+        return "I recommend consulting a doctor for accurate medical advice."
 
-# ---------------- RUN ----------------
+# ---------------- RUN APP ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
