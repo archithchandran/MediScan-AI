@@ -1,27 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>AI Chat Assistant</title>
+<title>AI Health Assistant</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script>
-function sendMessage(){
-    var msg = document.getElementById("msg").value;
 
-    fetch("/get_response", {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: "message=" + msg
-    })
-    .then(response => response.text())
-    .then(data => {
-        var chat = document.getElementById("chatbox");
-        chat.innerHTML += "<p><b>You:</b> " + msg + "</p>";
-        chat.innerHTML += "<p><b>AI:</b> " + data + "</p>";
-        document.getElementById("msg").value="";
-    });
+<style>
+.chatbox {
+    width: 60%;
+    height: 400px;
+    border: 1px solid #ccc;
+    margin: auto;
+    padding: 10px;
+    overflow-y: scroll;
+    background: #f9f9f9;
 }
-</script>
+
+.user {
+    color: blue;
+}
+
+.bot {
+    color: green;
+}
+
+input {
+    width: 50%;
+    padding: 10px;
+    margin: 10px;
+}
+
+button {
+    padding: 10px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="navbar">
@@ -31,12 +44,41 @@ function sendMessage(){
 
 <div class="chatbox" id="chatbox"></div>
 
+<center>
 <input type="text" id="msg" placeholder="Ask health question">
 <button onclick="sendMessage()">Send</button>
+</center>
 
 <p class="disclaimer">
 This AI provides general health guidance only. Please consult a doctor.
 </p>
+
+<p class="disclaimer">
+AI Assistant powered by ChatGPT knowledge model. This is not a medical diagnosis.
+</p>
+
+<script>
+function sendMessage() {
+    var msg = document.getElementById("msg").value;
+    var chatbox = document.getElementById("chatbox");
+
+    chatbox.innerHTML += "<p class='user'><b>You:</b> " + msg + "</p>";
+
+    fetch("/get_response", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "message=" + msg
+    })
+    .then(response => response.text())
+    .then(data => {
+        chatbox.innerHTML += "<p class='bot'><b>AI:</b> " + data + "</p>";
+        document.getElementById("msg").value = "";
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+}
+</script>
 
 </body>
 </html>

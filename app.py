@@ -104,6 +104,8 @@ def logout():
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
 def dashboard():
+    if 'user_id' not in session:
+        return redirect('/login')
     return render_template('dashboard.html')
 
 # ---------------- ANALYZE PAGE ----------------
@@ -171,26 +173,53 @@ def graph():
     data = c.fetchall()
     conn.close()
 
+    if len(data) == 0:
+        return "No data available for graph"
+
     dates = [row[0] for row in data]
     bmi = [row[1] for row in data]
 
     plt.figure()
-    plt.plot(dates, bmi)
+    plt.plot(dates, bmi, marker='o')
+    plt.xticks(rotation=45)
     plt.xlabel("Date")
     plt.ylabel("BMI")
     plt.title("BMI History")
+    plt.tight_layout()
     plt.savefig("static/graph.png")
+    plt.close()
 
     return render_template('graph.html')
 
 # ---------------- PDF REPORT ----------------
 @app.route('/download_report')
 def download_report():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("""SELECT bp,sugar,bmi,heart,risk,doctor,date 
+                 FROM records WHERE user_id=? 
+                 ORDER BY id DESC LIMIT 1""", (session['user_id'],))
+    record = c.fetchone()
+    conn.close()
+
+    if not record:
+        return "No records available"
+
     file_path = "static/report.pdf"
-    c = canvas.Canvas(file_path)
-    c.drawString(100, 750, "MediScan AI Health Report")
-    c.drawString(100, 720, "AI Generated Report")
-    c.save()
+    pdf = canvas.Canvas(file_path)
+
+    pdf.drawString(200, 800, "MediScan AI Health Report")
+    pdf.drawString(50, 750, f"Blood Pressure: {record[0]}")
+    pdf.drawString(50, 730, f"Sugar Level: {record[1]}")
+    pdf.drawString(50, 710, f"BMI: {record[2]}")
+    pdf.drawString(50, 690, f"Heart Rate: {record[3]}")
+    pdf.drawString(50, 670, f"Risk Level: {record[4]}")
+    pdf.drawString(50, 650, f"Doctor Suggestion: {record[5]}")
+    pdf.drawString(50, 630, f"Date: {record[6]}")
+    pdf.drawString(50, 600, "AI Generated Report. Consult a doctor.")
+
+    pdf.save()
+
     return redirect("/static/report.pdf")
 
 # ---------------- BOOK APPOINTMENT ----------------
@@ -221,15 +250,51 @@ def profile():
     conn.close()
     return render_template('profile.html', user=user)
 
+# ---------------- ADMIN LOGIN ----------------
+@app.route('/admin_login', methods=['GET','POST'])
+def admin_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        if email == "archithc411@gmail.com" and password == "12345":
+            session['admin'] = True
+            return redirect('/admin_panel')
+        else:
+            return "Invalid Admin Login"
+
+    return render_template('admin_login.html')
+
 # ---------------- ADMIN PANEL ----------------
-@app.route('/admin')
-def admin():
+@app.route('/admin_panel')
+def admin_panel():
+    if 'admin' not in session:
+        return redirect('/admin_login')
+
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
+
     c.execute("SELECT * FROM users")
     users = c.fetchall()
+
+    c.execute("SELECT * FROM records")
+    records = c.fetchall()
+
+    c.execute("SELECT * FROM appointments")
+    appointments = c.fetchall()
+
     conn.close()
-    return render_template('admin.html', users=users)
+
+    return render_template('admin_panel.html',
+                           users=users,
+                           records=records,
+                           appointments=appointments)
+
+# ---------------- ADMIN LOGOUT ----------------
+@app.route('/admin_logout')
+def admin_logout():
+    session.pop('admin', None)
+    return redirect('/')
 
 # ---------------- AI CHAT ----------------
 @app.route('/chat')
@@ -241,15 +306,19 @@ def get_response():
     msg = request.form['message'].lower()
 
     if "fever" in msg:
-        return "You may have an infection. Stay hydrated and consult a doctor."
-    elif "bp" in msg:
-        return "Normal blood pressure is 90-120. Reduce salt and exercise."
-    elif "diabetes" in msg:
-        return "Control sugar with diet, exercise and consult endocrinologist."
-    elif "medicine" in msg:
-        return "Please consult a doctor before taking medication."
+        return "Fever may be due to infection. Drink fluids and consult a doctor."
+    elif "blood pressure" in msg or "bp" in msg:
+        return "Normal blood pressure is around 120/80. Reduce salt and exercise."
+    elif "diabetes" in msg or "sugar" in msg:
+        return "Control sugar with diet, exercise and consult a doctor."
+    elif "heart" in msg:
+        return "Heart health requires exercise and a healthy diet."
+    elif "bmi" in msg:
+        return "BMI between 18.5 and 24.9 is normal."
+    elif "hello" in msg or "hi" in msg:
+        return "Hello! I am MediScan AI assistant. How can I help you?"
     else:
-        return "Please consult a medical professional for accurate diagnosis."
+        return "I recommend consulting a doctor for accurate medical advice."
 
 # ---------------- RUN APP ----------------
 if __name__ == "__main__":
