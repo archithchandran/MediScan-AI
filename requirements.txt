@@ -1,6 +1,6 @@
 Flask
-pandas
-scikit-learn
 matplotlib
 reportlab
 gunicorn
+scikit-learn
+pandas
