@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Health Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h2>AI Health Assistant</h2>
+
+<div id="chatbox" style="width:400px; height:300px; border:1px solid gray; overflow:auto; margin:auto; padding:10px;">
+</div>
+
+<br>
+
+<input type="text" id="message" placeholder="Ask health question..." style="width:300px;">
+<button onclick="sendMessage()">Send</button>
+
+<br><br>
+<a href="/dashboard">Back</a>
+
+<p style="color:red;">
+Disclaimer: This AI assistant provides general health information only.
+Always consult a doctor.
+</p>
+
+<script>
+function sendMessage() {
+    var msg = document.getElementById("message").value;
+
+    fetch("/get_response", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "message=" + msg
+    })
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("chatbox").innerHTML += "<p><b>You:</b> " + msg + "</p>";
+        document.getElementById("chatbox").innerHTML += "<p><b>AI:</b> " + data + "</p>";
+    });
+
+    document.getElementById("message").value = "";
+}
+</script>
+
+</body>
+</html>

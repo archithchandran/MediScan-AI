@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Health Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h2>Smart Healthcare Analysis</h2>
+
+<form action="/analyze" method="post">
+
+    Health Category:
+    <select name="category">
+        <option value="General">General Health</option>
+        <option value="Heart">Heart</option>
+        <option value="Skin">Skin</option>
+        <option value="Diabetes">Diabetes</option>
+        <option value="Kidney">Kidney</option>
+        <option value="Liver">Liver</option>
+        <option value="Mental">Mental Health</option>
+    </select>
+    <br>
+
+    Blood Pressure:
+    <input type="text" name="bp"><br>
+
+    Sugar Level:
+    <input type="text" name="sugar"><br>
+
+    BMI:
+    <input type="text" name="bmi"><br>
+
+    Heart Rate:
+    <input type="text" name="heart"><br>
+
+    <input type="submit" value="Analyze Health">
+
+</form>
+
+<a href="/dashboard">Back</a>
+
+</body>
+</html>

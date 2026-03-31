@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Health Result</h2>
+    <a href="/dashboard">Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Analysis Result</h2>
+        <p><b>Risk Level:</b> {{ risk }}</p>
+        <p><b>Reason:</b> {{ reason }}</p>
+        <p><b>Suggested Doctor:</b> {{ doctor }}</p>
+
+        <p class="disclaimer">
+        Disclaimer: This AI result is not doctor approved.
+        Please consult a medical professional.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

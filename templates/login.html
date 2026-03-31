@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Smart Healthcare</h2>
+    <a href="/">Home</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Login</h2>
+        <form method="post">
+            <input type="email" name="email" placeholder="Email"><br>
+            <input type="password" name="password" placeholder="Password"><br>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

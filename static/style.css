@@ -1,0 +1,83 @@
+body {
+    font-family: 'Segoe UI', Arial;
+    margin: 0;
+    background: #f4f6f9;
+    text-align: center;
+}
+
+.navbar {
+    background-color: #1f2a38;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbar a {
+    color: white;
+    margin: 10px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.container {
+    margin-top: 40px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    margin: auto;
+    width: 350px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+
+input, select {
+    width: 90%;
+    padding: 10px;
+    margin: 8px;
+    border-radius: 5px;
+    border: 1px solid gray;
+}
+
+button, input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #1f2a38;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+table {
+    margin: auto;
+    border-collapse: collapse;
+    width: 80%;
+    background: white;
+}
+
+table, th, td {
+    border: 1px solid gray;
+    padding: 10px;
+}
+
+.hero {
+    background: linear-gradient(to right, #2193b0, #6dd5ed);
+    color: white;
+    padding: 80px;
+}
+
+.chatbox {
+    width: 400px;
+    height: 250px;
+    border: 1px solid gray;
+    overflow: auto;
+    margin: auto;
+    padding: 10px;
+    background: white;
+}
+
+.disclaimer {
+    color: red;
+    margin: 20px;
+}
