@@ -14,7 +14,7 @@ body {
 }
 
 .hero {
-    padding: 120px 20px;
+    padding: 100px 20px;
 }
 
 .hero h1 {
@@ -50,8 +50,13 @@ body {
     background-color: #ddd;
 }
 
+.map-section {
+    background: white;
+    color: black;
+    padding: 40px;
+}
+
 .footer {
-    margin-top: 100px;
     padding: 20px;
     background: rgba(0,0,0,0.3);
 }
@@ -75,6 +80,20 @@ and provides AI health assistance.
 <a href="/doctor_login"><button>Doctor Login</button></a>
 <a href="/admin_login"><button>Admin Login</button></a>
 </div>
+</div>
+
+<div class="map-section">
+<h2>Nearby Hospitals</h2>
+
+<iframe
+    width="80%"
+    height="400"
+    style="border:0"
+    loading="lazy"
+    allowfullscreen
+    src="https://maps.google.com/maps?q=hospitals&t=&z=13&ie=UTF8&iwloc=&output=embed">
+</iframe>
+
 </div>
 
 <div class="footer">
