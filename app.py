@@ -15,23 +15,28 @@ def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
-    c.execute('''CREATE TABLE IF NOT EXISTS users(
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         email TEXT,
         password TEXT
-    )''')
+    )
+    """)
 
-    c.execute('''CREATE TABLE IF NOT EXISTS doctors(
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS doctors(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         email TEXT,
         password TEXT,
         specialization TEXT,
         license TEXT
-    )''')
+    )
+    """)
 
-    c.execute('''CREATE TABLE IF NOT EXISTS records(
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS records(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         bp REAL,
@@ -43,14 +48,17 @@ def init_db():
         doctor TEXT,
         category TEXT,
         date TEXT
-    )''')
+    )
+    """)
 
-    c.execute('''CREATE TABLE IF NOT EXISTS appointments(
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS appointments(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         doctor TEXT,
         date TEXT
-    )''')
+    )
+    """)
 
     conn.commit()
     conn.close()
@@ -103,6 +111,20 @@ def login():
             return redirect('/dashboard')
 
     return render_template('login.html')
+
+# ---------------- PROFILE ----------------
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT name,email FROM users WHERE id=?", (session['user_id'],))
+    user = c.fetchone()
+    conn.close()
+
+    return render_template('profile.html', user=user)
 
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
@@ -295,6 +317,48 @@ def doctor_dashboard():
 
     return render_template('doctor_dashboard.html', appointments=appointments, records=records)
 
+# ---------------- ADMIN LOGIN ----------------
+@app.route('/admin_login', methods=['GET','POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if username == "archithc411@gmail.com" and password == "12345":
+            session['admin'] = True
+            return redirect('/admin_panel')
+
+    return render_template('admin_login.html')
+
+# ---------------- ADMIN PANEL ----------------
+@app.route('/admin_panel')
+def admin_panel():
+    if 'admin' not in session:
+        return redirect('/admin_login')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM users")
+    users = c.fetchall()
+
+    c.execute("SELECT * FROM doctors")
+    doctors = c.fetchall()
+
+    c.execute("SELECT * FROM records")
+    records = c.fetchall()
+
+    c.execute("SELECT * FROM appointments")
+    appointments = c.fetchall()
+
+    conn.close()
+
+    return render_template('admin_panel.html',
+                           users=users,
+                           doctors=doctors,
+                           records=records,
+                           appointments=appointments)
+
 # ---------------- AI CHAT ----------------
 @app.route('/chat')
 def chat():
@@ -306,10 +370,6 @@ def get_response():
 
     if "fever" in msg:
         return "Fever may be due to infection. Drink fluids and consult a doctor."
-    elif "hi" in msg:
-        return "Hello! How can I assist you with your health today?"
-    elif "bmi" in msg:
-        return "BMI is calculated as weight (kg) / height (m)^2. A BMI between 18.5 and 24.9 is normal."
     elif "bp" in msg:
         return "Normal blood pressure is around 120/80."
     elif "diabetes" in msg:
