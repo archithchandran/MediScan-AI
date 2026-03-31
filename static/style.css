@@ -1,5 +1,5 @@
 body {
-    font-family: 'Segoe UI', Arial;
+    font-family: Arial;
     margin: 0;
     background: #f4f6f9;
     text-align: center;
@@ -17,7 +17,6 @@ body {
     color: white;
     margin: 10px;
     text-decoration: none;
-    font-weight: bold;
 }
 
 .container {
@@ -37,8 +36,6 @@ input, select {
     width: 90%;
     padding: 10px;
     margin: 8px;
-    border-radius: 5px;
-    border: 1px solid gray;
 }
 
 button, input[type="submit"] {
@@ -46,7 +43,6 @@ button, input[type="submit"] {
     background-color: #1f2a38;
     color: white;
     border: none;
-    border-radius: 5px;
 }
 
 table {
@@ -79,5 +75,4 @@ table, th, td {
 
 .disclaimer {
     color: red;
-    margin: 20px;
 }

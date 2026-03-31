@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+<h2>Admin Panel</h2>
+<a href="/dashboard">Dashboard</a>
+</div>
+
+<h2>Registered Users</h2>
+
+<table>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+</tr>
+
+{% for user in users %}
+<tr>
+<td>{{ user[0] }}</td>
+<td>{{ user[1] }}</td>
+<td>{{ user[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>

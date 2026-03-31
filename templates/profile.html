@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>User Profile</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+<h2>MediScan AI</h2>
+<a href="/dashboard">Dashboard</a>
+</div>
+
+<div class="container">
+<div class="card">
+<h2>User Profile</h2>
+
+<p><b>Name:</b> {{ user[1] }}</p>
+<p><b>Email:</b> {{ user[2] }}</p>
+
+</div>
+</div>
+
+</body>
+</html>

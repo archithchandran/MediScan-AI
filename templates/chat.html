@@ -1,49 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Health Assistant</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-<h2>AI Health Assistant</h2>
-
-<div id="chatbox" style="width:400px; height:300px; border:1px solid gray; overflow:auto; margin:auto; padding:10px;">
-</div>
-
-<br>
-
-<input type="text" id="message" placeholder="Ask health question..." style="width:300px;">
-<button onclick="sendMessage()">Send</button>
-
-<br><br>
-<a href="/dashboard">Back</a>
-
-<p style="color:red;">
-Disclaimer: This AI assistant provides general health information only.
-Always consult a doctor.
-</p>
-
+<title>AI Chat Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script>
-function sendMessage() {
-    var msg = document.getElementById("message").value;
+function sendMessage(){
+    var msg = document.getElementById("msg").value;
 
     fetch("/get_response", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: "message=" + msg
     })
     .then(response => response.text())
     .then(data => {
-        document.getElementById("chatbox").innerHTML += "<p><b>You:</b> " + msg + "</p>";
-        document.getElementById("chatbox").innerHTML += "<p><b>AI:</b> " + data + "</p>";
+        var chat = document.getElementById("chatbox");
+        chat.innerHTML += "<p><b>You:</b> " + msg + "</p>";
+        chat.innerHTML += "<p><b>AI:</b> " + data + "</p>";
+        document.getElementById("msg").value="";
     });
-
-    document.getElementById("message").value = "";
 }
 </script>
+</head>
+<body>
+
+<div class="navbar">
+<h2>AI Health Assistant</h2>
+<a href="/dashboard">Dashboard</a>
+</div>
+
+<div class="chatbox" id="chatbox"></div>
+
+<input type="text" id="msg" placeholder="Ask health question">
+<button onclick="sendMessage()">Send</button>
+
+<p class="disclaimer">
+This AI provides general health guidance only. Please consult a doctor.
+</p>
 
 </body>
 </html>

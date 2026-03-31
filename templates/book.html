@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Book Appointment</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+<h2>MediScan AI</h2>
+<a href="/dashboard">Dashboard</a>
+</div>
+
+<div class="container">
+<div class="card">
+<h2>Book Appointment</h2>
+
+<form method="post">
+<label>Select Doctor</label>
+<select name="doctor">
+<option>General Physician</option>
+<option>Cardiologist</option>
+<option>Dermatologist</option>
+<option>Endocrinologist</option>
+</select>
+
+<label>Select Date</label>
+<input type="date" name="date">
+
+<input type="submit" value="Book Appointment">
+</form>
+
+</div>
+</div>
+
+</body>
+</html>

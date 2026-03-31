@@ -1,42 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>History</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<title>History</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="navbar">
-    <h2>Health History</h2>
-    <a href="/dashboard">Dashboard</a>
-</div>
-
-<h2>Previous Records</h2>
+<h2>Health History</h2>
 
 <table>
 <tr>
-    <th>Date</th>
-    <th>BP</th>
-    <th>Sugar</th>
-    <th>BMI</th>
-    <th>Heart</th>
-    <th>Risk</th>
-    <th>Reason</th>
-    <th>Doctor</th>
-    <th>Category</th>
+<th>Date</th>
+<th>BP</th>
+<th>Sugar</th>
+<th>BMI</th>
+<th>Heart</th>
+<th>Risk</th>
+<th>Doctor</th>
 </tr>
 
 {% for row in data %}
 <tr>
-    <td>{{ row[8] }}</td>
-    <td>{{ row[0] }}</td>
-    <td>{{ row[1] }}</td>
-    <td>{{ row[2] }}</td>
-    <td>{{ row[3] }}</td>
-    <td>{{ row[4] }}</td>
-    <td>{{ row[5] }}</td>
-    <td>{{ row[6] }}</td>
-    <td>{{ row[7] }}</td>
+<td>{{ row[8] }}</td>
+<td>{{ row[0] }}</td>
+<td>{{ row[1] }}</td>
+<td>{{ row[2] }}</td>
+<td>{{ row[3] }}</td>
+<td>{{ row[4] }}</td>
+<td>{{ row[6] }}</td>
 </tr>
 {% endfor %}
 </table>

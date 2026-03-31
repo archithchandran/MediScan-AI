@@ -1,50 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smart Healthcare System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<title>MediScan AI</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
 <div class="navbar">
-    <h2>Smart Healthcare</h2>
-    <div>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-    </div>
+<h2>MediScan AI</h2>
+<div>
+<a href="/login">Login</a>
+<a href="/register">Register</a>
+</div>
 </div>
 
 <div class="hero">
-    <h1>AI Powered Smart Healthcare Analysis</h1>
-    <p>Analyze your health, detect risks, find doctors and nearby hospitals.</p>
-    <a href="/login"><button>Login to Continue</button></a>
+<h1>MediScan AI</h1>
+<p>AI Powered Smart Healthcare Analysis & Hospital Locator</p>
+<a href="/login"><button>Get Started</button></a>
 </div>
 
-<div class="features">
-    <div class="card">
-        <h3>Health Analysis</h3>
-        <p>Analyze BP, Sugar, BMI and Heart Rate</p>
-    </div>
-
-    <div class="card">
-        <h3>Doctor Suggestion</h3>
-        <p>Get specialist recommendation</p>
-    </div>
-
-    <div class="card">
-        <h3>Nearby Hospitals</h3>
-        <p>Find hospitals and travel time</p>
-    </div>
-
-    <div class="card">
-        <h3>AI Health Assistant</h3>
-        <p>Ask health related questions</p>
-    </div>
-</div>
-
-<h2>Nearby Hospitals & Travel Time</h2>
-
-<div style="width:80%; margin:auto;">
+<h2>Nearby Hospitals</h2>
 <iframe
     width="80%"
     height="400"
@@ -53,39 +29,6 @@
     allowfullscreen
     src="https://maps.google.com/maps?q=hospitals&t=&z=13&ie=UTF8&iwloc=&output=embed">
 </iframe>
-</div>
-
-<h2>AI Health Assistant</h2>
-
-<div id="chatbox" class="chatbox"></div>
-
-<input type="text" id="message" placeholder="Ask health question..." class="chatinput">
-<button onclick="sendMessage()">Send</button>
-
-<p class="disclaimer">
-Disclaimer: This system provides AI-based health analysis and is not a substitute for professional medical advice. Please consult a doctor.
-</p>
-
-<script>
-function sendMessage() {
-    var msg = document.getElementById("message").value;
-
-    fetch("/get_response", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "message=" + msg
-    })
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById("chatbox").innerHTML += "<p><b>You:</b> " + msg + "</p>";
-        document.getElementById("chatbox").innerHTML += "<p><b>AI:</b> " + data + "</p>";
-    });
-
-    document.getElementById("message").value = "";
-}
-</script>
 
 </body>
 </html>

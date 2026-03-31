@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Health Graph</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+<h2>MediScan AI</h2>
+<a href="/dashboard">Dashboard</a>
+</div>
+
+<div class="container">
+<div class="card">
+<h2>BMI History Graph</h2>
+<img src="{{ url_for('static', filename='graph.png') }}" width="400">
+</div>
+</div>
+
+</body>
+</html>

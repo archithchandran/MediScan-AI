@@ -10,10 +10,11 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = "mediscan"
 
-# Hash password
+# Password Hashing
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+# Home Page
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -50,6 +51,7 @@ def login():
         if user:
             session['user_id'] = user[0]
             return redirect('/dashboard')
+
     return render_template('login.html')
 
 # Logout
@@ -63,7 +65,12 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
-# Analyze
+# Analyze Page
+@app.route('/analyze_page')
+def analyze_page():
+    return render_template('analyze.html')
+
+# Analyze Health
 @app.route('/analyze', methods=['POST'])
 def analyze():
     bp = float(request.form['bp'])
@@ -157,6 +164,16 @@ def book():
 
     return render_template('book.html')
 
+# Profile
+@app.route('/profile')
+def profile():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE id=?", (session['user_id'],))
+    user = c.fetchone()
+    conn.close()
+    return render_template('profile.html', user=user)
+
 # Admin Panel
 @app.route('/admin')
 def admin():
@@ -167,7 +184,7 @@ def admin():
     conn.close()
     return render_template('admin.html', users=users)
 
-# Professional AI Chatbot
+# AI Chatbot
 @app.route('/chat')
 def chat():
     return render_template('chat.html')
@@ -187,7 +204,7 @@ def get_response():
     else:
         return "I recommend consulting a licensed medical professional for accurate diagnosis."
 
-# Run app
+# Run App (Render Compatible)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
