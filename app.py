@@ -334,15 +334,17 @@ def doctor_dashboard():
     return render_template('doctor_dashboard.html', appointments=appointments, records=records)
 
 # ---------------- ADMIN LOGIN ----------------
-@app.route('/admin_login', methods=['GET','POST'])
+@app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
 
         if username == "archithc411@gmail.com" and password == "12345":
             session['admin'] = True
             return redirect('/admin_panel')
+        else:
+            return "Invalid Admin Credentials"
 
     return render_template('admin_login.html')
 

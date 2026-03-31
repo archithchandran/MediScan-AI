@@ -10,9 +10,9 @@
 <div class="card">
 <h2>Admin Login</h2>
 
-<form method="post">
-<input type="email" name="email" placeholder="Admin Email"><br>
-<input type="password" name="password" placeholder="Password"><br>
+<form action="/admin_login" method="POST">
+<input type="text" name="username" placeholder="Admin Email" required><br>
+<input type="password" name="password" placeholder="Password" required><br>
 <input type="submit" value="Login">
 </form>
 
