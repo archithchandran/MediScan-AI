@@ -22,6 +22,14 @@ def init_db():
         password TEXT
     )''')
 
+    c.execute('''CREATE TABLE IF NOT EXISTS doctors(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        password TEXT,
+        specialization TEXT
+    )''')
+
     c.execute('''CREATE TABLE IF NOT EXISTS records(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -163,7 +171,7 @@ def history():
     conn.close()
     return render_template('history.html', data=data)
 
-# ---------------- GRAPH ----------------
+# ---------------- GRAPH (USER SPECIFIC) ----------------
 @app.route('/graph')
 def graph():
     conn = sqlite3.connect('database.db')
@@ -184,7 +192,7 @@ def graph():
     plt.xticks(rotation=45)
     plt.xlabel("Date")
     plt.ylabel("BMI")
-    plt.title("BMI History")
+    plt.title("Your BMI History")
     plt.tight_layout()
     plt.savefig("static/graph.png")
     plt.close()
@@ -260,8 +268,6 @@ def admin_login():
         if email == "archithc411@gmail.com" and password == "12345":
             session['admin'] = True
             return redirect('/admin_panel')
-        else:
-            return "Invalid Admin Login"
 
     return render_template('admin_login.html')
 
@@ -290,11 +296,58 @@ def admin_panel():
                            records=records,
                            appointments=appointments)
 
-# ---------------- ADMIN LOGOUT ----------------
-@app.route('/admin_logout')
-def admin_logout():
-    session.pop('admin', None)
-    return redirect('/')
+# ---------------- DOCTOR LOGIN ----------------
+@app.route('/doctor_login', methods=['GET','POST'])
+def doctor_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM doctors WHERE email=? AND password=?",
+                  (email,password))
+        doctor = c.fetchone()
+        conn.close()
+
+        if doctor:
+            session['doctor_id'] = doctor[0]
+            return redirect('/doctor_dashboard')
+
+    return render_template('doctor_login.html')
+
+# ---------------- DOCTOR REGISTER ----------------
+@app.route('/doctor_register', methods=['GET','POST'])
+def doctor_register():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        specialization = request.form['specialization']
+
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute("INSERT INTO doctors (name,email,password,specialization) VALUES (?,?,?,?)",
+                  (name,email,password,specialization))
+        conn.commit()
+        conn.close()
+        return redirect('/doctor_login')
+
+    return render_template('doctor_register.html')
+
+# ---------------- DOCTOR DASHBOARD ----------------
+@app.route('/doctor_dashboard')
+def doctor_dashboard():
+    if 'doctor_id' not in session:
+        return redirect('/doctor_login')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM appointments")
+    appointments = c.fetchall()
+    conn.close()
+
+    return render_template('doctor_dashboard.html', appointments=appointments)
 
 # ---------------- AI CHAT ----------------
 @app.route('/chat')
@@ -307,18 +360,16 @@ def get_response():
 
     if "fever" in msg:
         return "Fever may be due to infection. Drink fluids and consult a doctor."
-    elif "blood pressure" in msg or "bp" in msg:
-        return "Normal blood pressure is around 120/80. Reduce salt and exercise."
+    elif "bp" in msg or "blood pressure" in msg:
+        return "Normal blood pressure is around 120/80."
     elif "diabetes" in msg or "sugar" in msg:
-        return "Control sugar with diet, exercise and consult a doctor."
+        return "Control sugar with diet and exercise."
     elif "heart" in msg:
-        return "Heart health requires exercise and a healthy diet."
-    elif "bmi" in msg:
-        return "BMI between 18.5 and 24.9 is normal."
-    elif "hello" in msg or "hi" in msg:
-        return "Hello! I am MediScan AI assistant. How can I help you?"
+        return "Heart health requires exercise and healthy diet."
+    elif "hello" in msg:
+        return "Hello! I am MediScan AI assistant."
     else:
-        return "I recommend consulting a doctor for accurate medical advice."
+        return "Please consult a doctor for accurate medical advice."
 
 # ---------------- RUN APP ----------------
 if __name__ == "__main__":
