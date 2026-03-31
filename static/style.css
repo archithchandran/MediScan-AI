@@ -76,3 +76,19 @@ table, th, td {
 .disclaimer {
     color: red;
 }
+table {
+    margin: auto;
+    border-collapse: collapse;
+    width: 90%;
+    background: white;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+th {
+    background-color: #1f2a38;
+    color: white;
+}

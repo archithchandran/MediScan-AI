@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+<h2>MediScan AI Admin Panel</h2>
+<a href="/admin_logout">Logout</a>
+</div>
+
+<h2>Registered Users</h2>
+<table>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+</tr>
+{% for user in users %}
+<tr>
+<td>{{ user[0] }}</td>
+<td>{{ user[1] }}</td>
+<td>{{ user[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h2>Health Records</h2>
+<table>
+<tr>
+<th>ID</th>
+<th>User ID</th>
+<th>BP</th>
+<th>Sugar</th>
+<th>BMI</th>
+<th>Heart</th>
+<th>Risk</th>
+<th>Reason</th>
+<th>Doctor</th>
+<th>Date</th>
+</tr>
+{% for r in records %}
+<tr>
+{% for col in r %}
+<td>{{ col }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+<h2>Appointments</h2>
+<table>
+<tr>
+<th>ID</th>
+<th>User ID</th>
+<th>Doctor</th>
+<th>Date</th>
+</tr>
+{% for a in appointments %}
+<tr>
+{% for col in a %}
+<td>{{ col }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
